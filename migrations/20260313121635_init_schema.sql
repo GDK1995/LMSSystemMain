@@ -1,5 +1,51 @@
 -- +goose Up
-SELECT 'up SQL query';
+-- +goose StatementBegin
+CREATE TABLE IF NOT EXISTS courses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS chapters (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    "order" INTEGER DEFAULT 0,
+    course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lessons (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    content TEXT,
+    "order" INTEGER DEFAULT 0,
+    chapter_id INTEGER REFERENCES chapters(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO courses (name, description) VALUES
+('Golang для начинающих', 'Изучаем основы Go с нуля'),
+('Microservices на Go', 'Продвинутый курс по архитектуре');
+
+INSERT INTO chapters (course_id, name, description, "order") VALUES
+(1, 'Введение', 'Обзор языка и подготовка среды', 1),
+(1, 'Синтаксис', 'Базовые конструкции языка', 2),
+(2, 'Docker и контейнеры', 'Упаковка Go приложений', 3);
+
+INSERT INTO lessons (chapter_id, name, description, content, "order") VALUES
+(1, 'Установка Go', 'Инструкция', 'Скачайте Go с официального сайта...', 1),
+(2, 'Переменные и типы', 'Разбор типов', 'В Go строгая типизация...', 2),
+(3, 'Dockerfile', 'Создание образа', 'Используйте multi-stage build...', 3);
+
+-- +goose StatementEnd
 
 -- +goose Down
-SELECT 'down SQL query';
+DROP TABLE IF EXISTS lessons;
+DROP TABLE IF EXISTS chapters;
+DROP TABLE IF EXISTS courses;

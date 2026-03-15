@@ -3,14 +3,19 @@ package services
 import (
 	"MainService/entities"
 	"MainService/entitiesDTO"
+	"MainService/errorsEntities"
 	"MainService/mappers"
 	"MainService/repositories"
+	"errors"
+
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 type CourseService interface {
 	AddCourseS(course entities.Course) (uint, error)
 	GetCoursesS() ([]entitiesDTO.CourseDTO, error)
-	GetCourseByIDS(courseID uint) (entitiesDTO.CourseDTO, error)
+	GetCourseByIDS(courseID uint) (*entitiesDTO.CourseDTO, error)
 	DeleteCourseS(courseID uint) error
 	UpdateCurseS(updCourse entitiesDTO.CourseDTO) error
 }
@@ -24,18 +29,26 @@ func NewCourseService(courseRepository repositories.CourseRepository) CourseServ
 }
 
 func (cs *courseService) AddCourseS(course entities.Course) (uint, error) {
+	logrus.Info("Creating new course")
+	logrus.Debugf("Course details: %+v", course)
 	courseID, err := cs.courseRepository.AddCourse(course)
 	if err != nil {
-		return 0, err
+		logrus.Error("Failed to add course: ", err)
+		return 0, errorsEntities.ErrInternalServer
 	}
 
+	logrus.Info("Course added successfully")
 	return courseID, nil
 }
 
 func (cs *courseService) GetCoursesS() ([]entitiesDTO.CourseDTO, error) {
 	courses, err := cs.courseRepository.GetCourses()
 	if err != nil {
-		return []entitiesDTO.CourseDTO{}, err
+		return nil, errorsEntities.ErrInternalServer
+	}
+
+	if len(courses) == 0 {
+		return nil, errorsEntities.ErrCourseNotFound
 	}
 
 	coursesDTO := mappers.CoursesToDTO(courses)
@@ -43,21 +56,29 @@ func (cs *courseService) GetCoursesS() ([]entitiesDTO.CourseDTO, error) {
 	return coursesDTO, nil
 }
 
-func (cs *courseService) GetCourseByIDS(courseID uint) (entitiesDTO.CourseDTO, error) {
+func (cs *courseService) GetCourseByIDS(courseID uint) (*entitiesDTO.CourseDTO, error) {
 	course, err := cs.courseRepository.GetCourseByID(courseID)
 	if err != nil {
-		return entitiesDTO.CourseDTO{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsEntities.ErrCourseNotFound
+		}
+
+		return nil, errorsEntities.ErrInternalServer
 	}
 
 	courseDTO := mappers.CourseToDTO(course)
 
-	return courseDTO, nil
+	return &courseDTO, nil
 }
 
 func (cs *courseService) DeleteCourseS(courseID uint) error {
 	err := cs.courseRepository.DeleteCourse(courseID)
 	if err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errorsEntities.ErrCourseNotFound
+		}
+
+		return errorsEntities.ErrInternalServer
 	}
 
 	return nil
@@ -66,7 +87,11 @@ func (cs *courseService) DeleteCourseS(courseID uint) error {
 func (cs *courseService) UpdateCurseS(updCourse entitiesDTO.CourseDTO) error {
 	course, err := cs.courseRepository.GetCourseByID(updCourse.ID)
 	if err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errorsEntities.ErrCourseNotFound
+		}
+
+		return errorsEntities.ErrInternalServer
 	}
 
 	if updCourse.Name != "" && course.Name != updCourse.Name {
@@ -78,8 +103,13 @@ func (cs *courseService) UpdateCurseS(updCourse entitiesDTO.CourseDTO) error {
 	}
 
 	errTwo := cs.courseRepository.UpdateCurse(course)
+
 	if errTwo != nil {
-		return errTwo
+		if errors.Is(errTwo, gorm.ErrRecordNotFound) {
+			return errorsEntities.ErrCourseNotFound
+		}
+
+		return errorsEntities.ErrInternalServer
 	}
 
 	return nil

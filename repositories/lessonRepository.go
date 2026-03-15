@@ -9,7 +9,7 @@ import (
 type LessonRepository interface {
 	AddLesson(lesson entities.Lesson) (uint, error)
 	GetLessons() ([]entities.Lesson, error)
-	GetLessonsByCourseID(courseID uint) ([]entities.Lesson, error)
+	GetLessonsByChapterID(chapterID uint) ([]entities.Lesson, error)
 	GetLessonByID(lessonID uint) (entities.Lesson, error)
 	DeleteLesson(lessonID uint) error
 	UpdateLesson(updLesson entities.Lesson) error
@@ -33,19 +33,17 @@ func (lr *lessonRepository) AddLesson(lesson entities.Lesson) (uint, error) {
 
 func (lr *lessonRepository) GetLessons() ([]entities.Lesson, error) {
 	var lessons []entities.Lesson
-
-	if err := lr.gormDB.Find(&lessons).Error; err != nil {
-		return []entities.Lesson{}, err
+	if err := lr.gormDB.Preload("Chapter").Find(&lessons).Error; err != nil {
+		return nil, err
 	}
 
 	return lessons, nil
 }
 
-func (lr *lessonRepository) GetLessonsByCourseID(courseID uint) ([]entities.Lesson, error) {
+func (lr *lessonRepository) GetLessonsByChapterID(chapterID uint) ([]entities.Lesson, error) {
 	var lessons []entities.Lesson
-
-	if err := lr.gormDB.Where("course_id = ?", courseID).Find(&lessons).Error; err != nil {
-		return []entities.Lesson{}, err
+	if err := lr.gormDB.Preload("Chapter").Where("chapter_id = ?", chapterID).Find(&lessons).Error; err != nil {
+		return nil, err
 	}
 
 	return lessons, nil
@@ -54,7 +52,7 @@ func (lr *lessonRepository) GetLessonsByCourseID(courseID uint) ([]entities.Less
 func (lr *lessonRepository) GetLessonByID(lessonID uint) (entities.Lesson, error) {
 	var lesson entities.Lesson
 
-	if err := lr.gormDB.First(&lesson, lessonID).Error; err != nil {
+	if err := lr.gormDB.Preload("Chapter").First(&lesson, lessonID).Error; err != nil {
 		return entities.Lesson{}, err
 	}
 
@@ -62,16 +60,25 @@ func (lr *lessonRepository) GetLessonByID(lessonID uint) (entities.Lesson, error
 }
 
 func (lr *lessonRepository) DeleteLesson(lessonID uint) error {
-	if err := lr.gormDB.Delete(&entities.Lesson{}, lessonID).Error; err != nil {
-		return err
+	result := lr.gormDB.Delete(&entities.Lesson{}, lessonID)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
 	}
 
 	return nil
 }
 
 func (lr *lessonRepository) UpdateLesson(updLesson entities.Lesson) error {
-	if err := lr.gormDB.Save(&updLesson).Error; err != nil {
-		return err
+	result := lr.gormDB.Model(&entities.Lesson{}).Where("id == ?", updLesson.ID).Updates(updLesson)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
 	}
 
 	return nil

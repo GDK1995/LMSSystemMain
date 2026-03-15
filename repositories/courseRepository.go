@@ -35,7 +35,7 @@ func (cr *courseRepository) GetCourses() ([]entities.Course, error) {
 	var courseList []entities.Course
 	err := cr.gormDB.Find(&courseList).Error
 	if err != nil {
-		return []entities.Course{}, err
+		return nil, err
 	}
 
 	return courseList, nil
@@ -52,18 +52,26 @@ func (cr *courseRepository) GetCourseByID(courseID uint) (entities.Course, error
 }
 
 func (cr *courseRepository) DeleteCourse(courseID uint) error {
-	err := cr.gormDB.Delete(&entities.Course{}, courseID).Error
-	if err != nil {
-		return err
+	result := cr.gormDB.Delete(&entities.Course{}, courseID)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
 	}
 
 	return nil
 }
 
 func (cr *courseRepository) UpdateCurse(updCourse entities.Course) error {
-	err := cr.gormDB.Save(&updCourse).Error
-	if err != nil {
-		return err
+	result := cr.gormDB.Model(&entities.Course{}).Where("id = ?", updCourse.ID).Updates(updCourse)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
 	}
 
 	return nil

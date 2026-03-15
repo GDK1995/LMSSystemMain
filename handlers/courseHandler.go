@@ -3,6 +3,7 @@ package handlers
 import (
 	"MainService/entities"
 	"MainService/entitiesDTO"
+	"MainService/errorsEntities"
 	"MainService/services"
 	"net/http"
 	"strconv"
@@ -29,17 +30,13 @@ func NewCourseHandler(courseService services.CourseService) CourseHandler {
 func (ch *courseHandler) AddCourseH(c *gin.Context) {
 	var course entities.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	courseID, errTwo := ch.courseService.AddCourseS(course)
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 
@@ -51,9 +48,7 @@ func (ch *courseHandler) AddCourseH(c *gin.Context) {
 func (ch *courseHandler) GetCourseH(c *gin.Context) {
 	courses, err := ch.courseService.GetCoursesS()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(err)
 		return
 	}
 
@@ -65,17 +60,13 @@ func (ch *courseHandler) GetCourseByIDH(c *gin.Context) {
 
 	id, err := strconv.ParseUint(strID, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid ID",
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	course, errTwo := ch.courseService.GetCourseByIDS(uint(id))
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 
@@ -87,17 +78,13 @@ func (ch *courseHandler) DeleteCourseH(c *gin.Context) {
 
 	id, err := strconv.ParseUint(strID, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid ID",
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	errTwo := ch.courseService.DeleteCourseS(uint(id))
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 
@@ -110,17 +97,13 @@ func (ch *courseHandler) UpdateCourseH(c *gin.Context) {
 	var courseDTO entitiesDTO.CourseDTO
 	err := c.ShouldBindJSON(&courseDTO)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	errTwo := ch.courseService.UpdateCurseS(courseDTO)
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 

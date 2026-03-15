@@ -27,8 +27,8 @@ type Lesson struct {
 	Description string    `json:"description"`
 	Content     string    `json:"content" gorm:"not null"`
 	Order       int       `json:"order" gorm:"not null"`
-	CourseID    uint      `json:"course_id" gorm:"not null;index"`
-	Course      Course    `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	ChapterID   uint      `json:"chapter_id" gorm:"not null;index"`
+	Chapter     Chapter   `gorm:"foreignKey:ChapterID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

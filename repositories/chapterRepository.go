@@ -34,9 +34,9 @@ func (chr *chapterRepository) AddChapter(chapter entities.Chapter) (uint, error)
 
 func (chr *chapterRepository) GetChapters() ([]entities.Chapter, error) {
 	var chapters []entities.Chapter
-	err := chr.gormDB.Find(&chapters).Error
+	err := chr.gormDB.Preload("Course").Find(&chapters).Error
 	if err != nil {
-		return []entities.Chapter{}, err
+		return nil, err
 	}
 
 	return chapters, nil
@@ -44,9 +44,9 @@ func (chr *chapterRepository) GetChapters() ([]entities.Chapter, error) {
 
 func (chr *chapterRepository) GetChaptersByCourseID(courseID uint) ([]entities.Chapter, error) {
 	var chapters []entities.Chapter
-	err := chr.gormDB.Where("course_id = ?", courseID).Find(&chapters).Error
+	err := chr.gormDB.Preload("Course").Where("course_id = ?", courseID).Find(&chapters).Error
 	if err != nil {
-		return []entities.Chapter{}, err
+		return nil, err
 	}
 
 	return chapters, nil
@@ -54,7 +54,7 @@ func (chr *chapterRepository) GetChaptersByCourseID(courseID uint) ([]entities.C
 
 func (chr *chapterRepository) GetChapterByID(chapterID uint) (entities.Chapter, error) {
 	var chapter entities.Chapter
-	err := chr.gormDB.First(&chapter, chapterID).Error
+	err := chr.gormDB.Preload("Course").First(&chapter, chapterID).Error
 	if err != nil {
 		return entities.Chapter{}, err
 	}
@@ -63,18 +63,25 @@ func (chr *chapterRepository) GetChapterByID(chapterID uint) (entities.Chapter, 
 }
 
 func (chr *chapterRepository) DeleteChapter(chapterID uint) error {
-	err := chr.gormDB.Delete(entities.Chapter{}, chapterID).Error
-	if err != nil {
-		return err
+	result := chr.gormDB.Delete(entities.Chapter{}, chapterID)
+	if result.Error != nil {
+		return result.Error
 	}
 
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
 	return nil
 }
 
 func (chr *chapterRepository) UpdateChapter(updChapter entities.Chapter) error {
-	err := chr.gormDB.Save(&updChapter).Error
-	if err != nil {
-		return err
+	result := chr.gormDB.Model(&entities.Chapter{}).Where("id = ?", updChapter.ID).Updates(updChapter)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
 	}
 
 	return nil

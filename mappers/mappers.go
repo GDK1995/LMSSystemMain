@@ -76,8 +76,8 @@ func LessonsToDTO(lessons []entities.Lesson) []entitiesDTO.LessonDTO {
 		lessonDTO.Description = lessons[i].Description
 		lessonDTO.Content = lessons[i].Content
 		lessonDTO.Order = lessons[i].Order
-		lessonDTO.CourseID = lessons[i].CourseID
-		lessonDTO.Course = lessons[i].Course
+		lessonDTO.ChapterID = lessons[i].ChapterID
+		lessonDTO.Chapter = lessons[i].Chapter
 		lessonsDTO = append(lessonsDTO, lessonDTO)
 	}
 
@@ -91,8 +91,8 @@ func LessonToDTO(lesson entities.Lesson) entitiesDTO.LessonDTO {
 	lessonDTO.Description = lesson.Description
 	lessonDTO.Content = lesson.Content
 	lessonDTO.Order = lesson.Order
-	lessonDTO.CourseID = lesson.CourseID
-	lessonDTO.Course = lesson.Course
+	lessonDTO.ChapterID = lesson.ChapterID
+	lessonDTO.Chapter = lesson.Chapter
 
 	return lessonDTO
 }

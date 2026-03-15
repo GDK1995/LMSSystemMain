@@ -23,6 +23,6 @@ type LessonDTO struct {
 	Description string `json:"description"`
 	Content     string `json:"content"`
 	Order       int    `json:"order"`
-	CourseID    uint   `json:"course_id"`
-	Course      entities.Course
+	ChapterID   uint   `json:"chapter_id"`
+	Chapter     entities.Chapter
 }

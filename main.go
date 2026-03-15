@@ -2,6 +2,7 @@ package main
 
 import (
 	"MainService/handlers"
+	"MainService/middleware"
 	"MainService/repositories"
 	"MainService/services"
 	"database/sql"
@@ -18,6 +19,8 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+
+	logrus "github.com/sirupsen/logrus"
 )
 
 //go:embed migrations/*.sql
@@ -75,6 +78,10 @@ func main() {
 	InitDB()
 	defer CloseDB()
 
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
+	logrus.Info("Logrus is configured")
+
 	courseRepo := repositories.NewCourseRepository(gormDB)
 	courseServ := services.NewCourseService(courseRepo)
 	courseHandler := handlers.NewCourseHandler(courseServ)
@@ -88,6 +95,8 @@ func main() {
 	lessonHandler := handlers.NewLessonHandler(lessonServ)
 
 	router := gin.Default()
+	router.Use(middleware.ErrorHandler())
+
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
@@ -107,7 +116,7 @@ func main() {
 
 	router.POST("/lesson", lessonHandler.AddLessonH)
 	router.GET("/lesson", lessonHandler.GetLessonsH)
-	router.GET("/lesson/course/:courseId", lessonHandler.GetLessonsByCourseIDH)
+	router.GET("/lesson/course/:chapterId", lessonHandler.GetLessonsByChapterIDH)
 	router.GET("/lesson/:id", lessonHandler.GetLessonByIDH)
 	router.DELETE("/lesson/:id", lessonHandler.DeleteLessonH)
 	router.PATCH("/lesson", lessonHandler.UpdateLessonH)

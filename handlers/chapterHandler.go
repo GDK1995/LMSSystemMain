@@ -3,6 +3,7 @@ package handlers
 import (
 	"MainService/entities"
 	"MainService/entitiesDTO"
+	"MainService/errorsEntities"
 	"MainService/services"
 	"net/http"
 	"strconv"
@@ -30,17 +31,13 @@ func NewChapterHandler(chapterService services.ChapterService) ChapterHandler {
 func (chh *chapterHandler) AddChapterH(c *gin.Context) {
 	var chapter entities.Chapter
 	if err := c.ShouldBindJSON(&chapter); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	chapterID, errTwo := chh.chapterService.AddChapterS(chapter)
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 
@@ -52,9 +49,7 @@ func (chh *chapterHandler) AddChapterH(c *gin.Context) {
 func (chh *chapterHandler) GetChaptersH(c *gin.Context) {
 	chapters, err := chh.chapterService.GetChaptersS()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(err)
 		return
 	}
 
@@ -66,17 +61,13 @@ func (chh *chapterHandler) GetChaptersByCourseIDH(c *gin.Context) {
 
 	id64, err := strconv.ParseUint(strID, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	chapters, errTwo := chh.chapterService.GetChaptersByCourseIDS(uint(id64))
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 
@@ -88,17 +79,13 @@ func (chh *chapterHandler) GetChapterByIDH(c *gin.Context) {
 
 	id64, err := strconv.ParseUint(strID, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	chapter, errTwo := chh.chapterService.GetChapterByIDS(uint(id64))
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 
@@ -110,17 +97,13 @@ func (chh *chapterHandler) DeleteChapterH(c *gin.Context) {
 
 	id64, err := strconv.ParseUint(strID, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	errTwo := chh.chapterService.DeleteChapterS(uint(id64))
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 
@@ -132,17 +115,13 @@ func (chh *chapterHandler) DeleteChapterH(c *gin.Context) {
 func (chh *chapterHandler) UpdateChapterH(c *gin.Context) {
 	var chapterDTO entitiesDTO.ChapterDTO
 	if err := c.ShouldBindJSON(&chapterDTO); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
 
 	errTwo := chh.chapterService.UpdateChapterS(chapterDTO)
 	if errTwo != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errTwo.Error(),
-		})
+		c.Error(errTwo)
 		return
 	}
 
