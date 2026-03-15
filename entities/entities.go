@@ -16,7 +16,7 @@ type Chapter struct {
 	Description string    `json:"description"`
 	Order       int       `json:"order"`
 	CourseID    uint      `json:"course_id" gorm:"not null;index"`
-	Course      Course    `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	Course      Course    `json:"course" gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
@@ -28,7 +28,7 @@ type Lesson struct {
 	Content     string    `json:"content" gorm:"not null"`
 	Order       int       `json:"order" gorm:"not null"`
 	ChapterID   uint      `json:"chapter_id" gorm:"not null;index"`
-	Chapter     Chapter   `gorm:"foreignKey:ChapterID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	Chapter     Chapter   `json:"chapter" gorm:"foreignKey:ChapterID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

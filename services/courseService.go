@@ -42,63 +42,86 @@ func (cs *courseService) AddCourseS(course entities.Course) (uint, error) {
 }
 
 func (cs *courseService) GetCoursesS() ([]entitiesDTO.CourseDTO, error) {
+	logrus.Info("Getting courses")
 	courses, err := cs.courseRepository.GetCourses()
 	if err != nil {
+		logrus.Error("Failed to get courses from repository: ", err)
 		return nil, errorsEntities.ErrInternalServer
 	}
 
 	if len(courses) == 0 {
+		logrus.Warn("No courses found")
 		return nil, errorsEntities.ErrCourseNotFound
 	}
 
+	logrus.Debugf("Found %d courses: %+v", len(courses), courses)
+
 	coursesDTO := mappers.CoursesToDTO(courses)
 
+	logrus.Info("Courses successfully converted to DTO")
 	return coursesDTO, nil
 }
 
 func (cs *courseService) GetCourseByIDS(courseID uint) (*entitiesDTO.CourseDTO, error) {
+	logrus.Infof("Getting course by id %d", courseID)
 	course, err := cs.courseRepository.GetCourseByID(courseID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Warnf("Course with id %d not found", courseID)
 			return nil, errorsEntities.ErrCourseNotFound
 		}
 
+		logrus.Errorf("Failed to get course by id %d: %v", courseID, err)
 		return nil, errorsEntities.ErrInternalServer
 	}
 
+	logrus.Debugf("Found course: %+v", course)
+
 	courseDTO := mappers.CourseToDTO(course)
+	logrus.Info("Course successfully converted to DTO")
 
 	return &courseDTO, nil
 }
 
 func (cs *courseService) DeleteCourseS(courseID uint) error {
+	logrus.Infof("Deleting course by id %d", courseID)
 	err := cs.courseRepository.DeleteCourse(courseID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Warnf("Course with id %d not found", courseID)
 			return errorsEntities.ErrCourseNotFound
 		}
 
+		logrus.Error("Failed to delete course from repository: ", err)
 		return errorsEntities.ErrInternalServer
 	}
 
+	logrus.Info("Course successfully deleted")
 	return nil
 }
 
 func (cs *courseService) UpdateCurseS(updCourse entitiesDTO.CourseDTO) error {
+	logrus.Infof("Updating course with id %d", updCourse.ID)
 	course, err := cs.courseRepository.GetCourseByID(updCourse.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Warnf("Course with id %d not found", updCourse.ID)
 			return errorsEntities.ErrCourseNotFound
 		}
 
+		logrus.Errorf("Failed to get course by id %d: %v", updCourse.ID, err)
 		return errorsEntities.ErrInternalServer
 	}
 
+	logrus.Debugf("Current course data: %+v", course)
+
 	if updCourse.Name != "" && course.Name != updCourse.Name {
+		logrus.Debugf("Updating Name: %s to %s", course.Name, updCourse.Name)
 		course.Name = updCourse.Name
 	}
 
 	if updCourse.Description != "" && course.Description != updCourse.Description {
+		logrus.Debugf("Updating Description: %s to %s", course.Description, updCourse.Description)
 		course.Description = updCourse.Description
 	}
 
@@ -106,11 +129,14 @@ func (cs *courseService) UpdateCurseS(updCourse entitiesDTO.CourseDTO) error {
 
 	if errTwo != nil {
 		if errors.Is(errTwo, gorm.ErrRecordNotFound) {
+			logrus.Warnf("Course with id %d not found during update", updCourse.ID)
 			return errorsEntities.ErrCourseNotFound
 		}
 
+		logrus.Errorf("Failed to update course id %d: %v", updCourse.ID, errTwo)
 		return errorsEntities.ErrInternalServer
 	}
 
+	logrus.Infof("Course with id %d successfully updated", updCourse.ID)
 	return nil
 }
