@@ -145,12 +145,12 @@ func (chs *chapterService) UpdateChapterS(updChapter entitiesDTO.ChapterDTO) err
 	}
 
 	if updChapter.Order != 0 && updChapter.Order != chapter.Order {
-		logrus.Debugf("Updating Order: %s to %s", chapter.Order, updChapter.Order)
+		logrus.Debugf("Updating Order: %d to %d", chapter.Order, updChapter.Order)
 		chapter.Order = updChapter.Order
 	}
 
 	if updChapter.CourseID != 0 && updChapter.CourseID != chapter.CourseID {
-		logrus.Debugf("Updating CourseID: %s to %s", chapter.CourseID, updChapter.CourseID)
+		logrus.Debugf("Updating CourseID: %d to %d", chapter.CourseID, updChapter.CourseID)
 		chapter.CourseID = updChapter.CourseID
 	}
 

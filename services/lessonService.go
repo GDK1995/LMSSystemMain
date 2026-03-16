@@ -151,12 +151,12 @@ func (ls *lessonService) UpdateLessonS(updLesson entitiesDTO.LessonDTO) error {
 	}
 
 	if updLesson.Order != 0 && updLesson.Order != lesson.Order {
-		logrus.Debugf("Updating Order: %s to %s", lesson.Order, updLesson.Order)
+		logrus.Debugf("Updating Order: %d to %d", lesson.Order, updLesson.Order)
 		lesson.Order = updLesson.Order
 	}
 
 	if updLesson.ChapterID != 0 && updLesson.ChapterID != lesson.ChapterID {
-		logrus.Debugf("Updating ChapterID: %s to %s", lesson.ChapterID, updLesson.ChapterID)
+		logrus.Debugf("Updating ChapterID: %d to %d", lesson.ChapterID, updLesson.ChapterID)
 		lesson.ChapterID = updLesson.ChapterID
 	}
 
