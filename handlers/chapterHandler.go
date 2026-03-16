@@ -41,7 +41,7 @@ func NewChapterHandler(chapterService services.ChapterService) ChapterHandler {
 // @Router /api/v1/chapter [post]
 func (chh *chapterHandler) AddChapterH(c *gin.Context) {
 	var chapter entities.Chapter
-	if err := c.ShouldBindJSON(&chapter); err != nil {
+	if err := c.BindJSON(&chapter); err != nil {
 		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
@@ -176,7 +176,7 @@ func (chh *chapterHandler) DeleteChapterH(c *gin.Context) {
 // @Router /api/v1/chapter [patch]
 func (chh *chapterHandler) UpdateChapterH(c *gin.Context) {
 	var chapterDTO entitiesDTO.ChapterDTO
-	if err := c.ShouldBindJSON(&chapterDTO); err != nil {
+	if err := c.BindJSON(&chapterDTO); err != nil {
 		c.Error(errorsEntities.ErrBadRequest)
 		return
 	}
