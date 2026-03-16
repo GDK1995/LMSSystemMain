@@ -17,6 +17,11 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "MainService/docs"
+
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 
@@ -70,6 +75,20 @@ func CloseDB() {
 	}
 }
 
+// @title LMSSysytem API
+// @version 1.0
+// @description This is a LMSSystem server.
+// @termsOfService http://example.com/terms/
+
+// @contact.name API Support
+// @contact.url http://www.example.com/support
+// @contact.email support@example.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8083
+
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system environment")
@@ -101,25 +120,32 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 
-	router.POST("/course", courseHandler.AddCourseH)
-	router.GET("/course", courseHandler.GetCourseH)
-	router.GET("/course/:id", courseHandler.GetCourseByIDH)
-	router.DELETE("/course/:id", courseHandler.DeleteCourseH)
-	router.PATCH("course", courseHandler.UpdateCourseH)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST("/chapter", chapterHandler.AddChapterH)
-	router.GET("/chapter", chapterHandler.GetChaptersH)
-	router.GET("/chapter/course/:courseId", chapterHandler.GetChaptersByCourseIDH)
-	router.GET("/chapter/:id", chapterHandler.GetChapterByIDH)
-	router.DELETE("/chapter/:id", chapterHandler.DeleteChapterH)
-	router.PATCH("/chapter", chapterHandler.UpdateChapterH)
+	api := router.Group("/api/v1")
+	api.Use(middleware.AuthMiddleware())
 
-	router.POST("/lesson", lessonHandler.AddLessonH)
-	router.GET("/lesson", lessonHandler.GetLessonsH)
-	router.GET("/lesson/course/:chapterId", lessonHandler.GetLessonsByChapterIDH)
-	router.GET("/lesson/:id", lessonHandler.GetLessonByIDH)
-	router.DELETE("/lesson/:id", lessonHandler.DeleteLessonH)
-	router.PATCH("/lesson", lessonHandler.UpdateLessonH)
+	{
+		api.POST("/course", courseHandler.AddCourseH)
+		api.GET("/course", courseHandler.GetCourseH)
+		api.GET("/course/:id", courseHandler.GetCourseByIDH)
+		api.DELETE("/course/:id", courseHandler.DeleteCourseH)
+		api.PATCH("course", courseHandler.UpdateCourseH)
+
+		api.POST("/chapter", chapterHandler.AddChapterH)
+		api.GET("/chapter", chapterHandler.GetChaptersH)
+		api.GET("/chapter/course/:courseId", chapterHandler.GetChaptersByCourseIDH)
+		api.GET("/chapter/:id", chapterHandler.GetChapterByIDH)
+		api.DELETE("/chapter/:id", chapterHandler.DeleteChapterH)
+		api.PATCH("/chapter", chapterHandler.UpdateChapterH)
+
+		api.POST("/lesson", lessonHandler.AddLessonH)
+		api.GET("/lesson", lessonHandler.GetLessonsH)
+		api.GET("/lesson/chapter/:chapterId", lessonHandler.GetLessonsByChapterIDH)
+		api.GET("/lesson/:id", lessonHandler.GetLessonByIDH)
+		api.DELETE("/lesson/:id", lessonHandler.DeleteLessonH)
+		api.PATCH("/lesson", lessonHandler.UpdateLessonH)
+	}
 
 	router.Run(":8083")
 }
