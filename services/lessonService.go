@@ -50,11 +50,6 @@ func (ls *lessonService) GetLessonsS() ([]entitiesDTO.LessonDTO, error) {
 		return nil, err
 	}
 
-	if len(lessons) == 0 {
-		logrus.Warn("No lessons found")
-		return nil, errorsEntities.ErrLessonNotFound
-	}
-
 	logrus.Debugf("Found %d lessons: %+v", len(lessons), lessons)
 	lessonDTO := mappers.LessonsToDTO(lessons)
 
@@ -68,11 +63,6 @@ func (ls *lessonService) GetLessonsByChapterIDS(chapterID uint) ([]entitiesDTO.L
 	if err != nil {
 		logrus.Errorf("Failed to get lessons by chapter id %d: %v", chapterID, err)
 		return nil, errorsEntities.ErrInternalServer
-	}
-
-	if len(lessons) == 0 {
-		logrus.Warn("No lessons found")
-		return nil, errorsEntities.ErrLessonNotFound
 	}
 
 	logrus.Debugf("Found %d lessons: %+v", len(lessons), lessons)

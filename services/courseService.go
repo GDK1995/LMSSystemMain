@@ -49,11 +49,6 @@ func (cs *courseService) GetCoursesS() ([]entitiesDTO.CourseDTO, error) {
 		return nil, errorsEntities.ErrInternalServer
 	}
 
-	if len(courses) == 0 {
-		logrus.Warn("No courses found")
-		return nil, errorsEntities.ErrCourseNotFound
-	}
-
 	logrus.Debugf("Found %d courses: %+v", len(courses), courses)
 
 	coursesDTO := mappers.CoursesToDTO(courses)

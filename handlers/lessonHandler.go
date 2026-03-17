@@ -52,7 +52,7 @@ func (lh *lessonHandler) AddLessonH(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"lesson_id": lessonID,
 	})
 }
@@ -155,7 +155,7 @@ func (lh *lessonHandler) DeleteLessonH(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusNoContent, gin.H{
 		"message": "success",
 	})
 }

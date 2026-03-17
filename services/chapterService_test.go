@@ -76,14 +76,6 @@ func TestGetChapters(t *testing.T) {
 		assert.Equal(t, "Полная информация о функциях, рекурсии и замыкании", results[1].Description)
 	})
 
-	t.Run("Empty List", func(t *testing.T) {
-		repo.On("GetChapters").Return([]entities.Chapter{}, nil).Once()
-		results, err := service.GetChaptersS()
-
-		assert.Nil(t, results)
-		assert.Error(t, err, errorsEntities.ErrChapterNotFound)
-	})
-
 	t.Run("Repository Error", func(t *testing.T) {
 		repo.On("GetChapters").Return(nil, gorm.ErrInvalidDB).Once()
 		results, err := service.GetChaptersS()
@@ -122,14 +114,6 @@ func TestGetChaptersByCourseID(t *testing.T) {
 		assert.Len(t, results, 2)
 		assert.Equal(t, uint(1), results[0].CourseID)
 		assert.Equal(t, "Функции", results[1].Name)
-	})
-
-	t.Run("Empty List", func(t *testing.T) {
-		repo.On("GetChaptersByCourseID", uint(5)).Return([]entities.Chapter{}, nil).Once()
-		results, err := service.GetChaptersByCourseIDS(uint(5))
-
-		assert.Nil(t, results)
-		assert.Error(t, err, errorsEntities.ErrChapterNotFound)
 	})
 
 	t.Run("Repository Error", func(t *testing.T) {

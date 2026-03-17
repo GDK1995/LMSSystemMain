@@ -51,7 +51,7 @@ func (ch *courseHandler) AddCourseH(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"course_id": courseID,
 	})
 }
@@ -130,8 +130,8 @@ func (ch *courseHandler) DeleteCourseH(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
+	c.JSON(http.StatusNoContent, gin.H{
+		"message": "no content",
 	})
 }
 

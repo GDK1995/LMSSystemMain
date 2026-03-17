@@ -52,7 +52,7 @@ func (chh *chapterHandler) AddChapterH(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"chapter id": chapterID,
 	})
 }
@@ -158,8 +158,8 @@ func (chh *chapterHandler) DeleteChapterH(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
+	c.JSON(http.StatusNoContent, gin.H{
+		"message": "no content",
 	})
 }
 

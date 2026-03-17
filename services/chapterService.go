@@ -50,11 +50,6 @@ func (chs *chapterService) GetChaptersS() ([]entitiesDTO.ChapterDTO, error) {
 		return nil, errorsEntities.ErrInternalServer
 	}
 
-	if len(chapters) == 0 {
-		logrus.Warn("No chapters found")
-		return nil, errorsEntities.ErrChapterNotFound
-	}
-
 	logrus.Debugf("Found %d chapters: %+v", len(chapters), chapters)
 	chaptersDTO := mappers.ChaptersToDTO(chapters)
 
@@ -68,11 +63,6 @@ func (chs *chapterService) GetChaptersByCourseIDS(courseID uint) ([]entitiesDTO.
 	if err != nil {
 		logrus.Errorf("Failed to get chapters by course id %d: %v", courseID, err)
 		return nil, errorsEntities.ErrInternalServer
-	}
-
-	if len(chapters) == 0 {
-		logrus.Warn("No chpaters found")
-		return nil, errorsEntities.ErrChapterNotFound
 	}
 
 	logrus.Debugf("Found %d chapters: %+v", len(chapters), chapters)
